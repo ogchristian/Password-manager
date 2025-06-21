@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Verify Email{% endblock %}
+
+{% block content %}
+<style>
+  .verify-container {
+    max-width: 500px;
+    margin: 4rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-verify,
+  #resend-btn {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+  }
+
+  .btn-verify {
+    background-color: #1f2937;
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .btn-verify:hover {
+    background-color: #111827;
+  }
+
+  #resend-btn {
+    background-color: #e2e8f0;
+    color: #333;
+  }
+
+  #resend-btn:disabled {
+    background-color: #ccc;
+    color: #777;
+    cursor: not-allowed;
+  }
+
+  .breadcrumb {
+    font-size: 0.95rem;
+    color: #007bff;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb i {
+    margin-right: 0.3rem;
+  }
+</style>
+
+<div class="verify-container">
+  <nav class="breadcrumb">
+    <a href="#"><i class="fas fa-home"></i> Home</a>
+    <i class="fas fa-chevron-right breadcrumb-separator mx-2 text-gray-400"></i>
+    <span><i class="fas fa-envelope"></i> Verify Email</span>
+  </nav>
+
+  <h3 class="mb-4">Verify Your New Email</h3>
+
+  <form method="POST">
+    <label class="form-label" for="verification_code">Enter the code sent to your new email:</label>
+    <input type="text" id="verification_code" name="verification_code" class="form-control" required>
+    <button type="submit" class="btn-verify">Verify</button>
+  </form>
+
+  <button id="resend-btn" disabled>Resend Code (60)</button>
+</div>
+
+<script>
+  let countdown = 60;
+  const resendBtn = document.getElementById("resend-btn");
+
+  const interval = setInterval(() => {
+    countdown--;
+    resendBtn.textContent = `Resend Code (${countdown})`;
+    if (countdown <= 0) {
+      clearInterval(interval);
+      resendBtn.disabled = false;
+      resendBtn.textContent = "Resend Code";
+    }
+  }, 1000);
+
+  resendBtn.addEventListener("click", () => {
+    resendBtn.disabled = true;
+    resendBtn.textContent = "Resending...";
+
+    fetch("/resend_verification", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token() }}"
+      }
+    }).then(res => {
+      if (res.ok) {
+        countdown = 60;
+        resendBtn.textContent = `Resend Code (${countdown})`;
+        const interval = setInterval(() => {
+          countdown--;
+          resendBtn.textContent = `Resend Code (${countdown})`;
+          if (countdown <= 0) {
+            clearInterval(interval);
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Resend Code";
+          }
+        }, 1000);
+      } else {
+        resendBtn.textContent = "Failed. Try again.";
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Export password list{% endblock %}
+{% block content %}
+
+<div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
+ <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <!-- Header & Export Button -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
+      <h1 class="text-3xl font-semibold text-gray-800 mb-4 sm:mb-0">Your Passwords</h1>
+      <a
+        href="{{ url_for('export_csv') }}"
+        class="inline-flex items-center bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition"
+      >
+        <!-- Icon (SVG download) -->
+        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+        </svg>
+        Export CSV
+      </a>
+    </div>
+
+    <!-- Passwords Table -->
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Service Name
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Web Address
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Username
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Password
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for p in passwords %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ p.servicename }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-600">
+              <a href="{{ p.webaddress }}" target="_blank" class="underline hover:text-cyan-800">
+                {{ p.webaddress }}
+              </a>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ p.username }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+              <span class="font-mono">{{ p.password }}</span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+              No passwords saved yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{% endblock %}

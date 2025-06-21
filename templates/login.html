@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+
+<div class="flex flex-col lg:flex-row items-center justify-center min-h-screen">
+  <!-- Left Section -->
+  <div class="lg:w-1/2 p-8 text-center">
+    <h1 class="text-4xl font-bold mb-6">
+      Unlock your Project <span class="text-customCyan">performance</span>
+    </h1>
+    <img
+      src="{{ url_for('static', filename='images/templogo.png') }}"
+      alt="Illustration"
+      class="mx-auto w-full max-w-md"
+    />
+  </div>
+
+  <!-- Right Section -->
+  <div class="lg:w-1/2 p-8">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-semibold mb-2">Sign in</h2>
+      <p class="text-gray-600 mb-6">
+        Sign in to your account to start using PasswordManager
+      </p>
+
+      <form
+        method="post"
+        action="{{ url_for('login') }}"
+        class="space-y-4"
+      >
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token() }}"
+        />
+
+        <div>
+          <label for="email" class="block text-gray-700">Email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            required
+            placeholder="Email"
+            class="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-customCyan"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="block text-gray-700">Password</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            required
+            placeholder="Password"
+            class="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-customCyan"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <label class="inline-flex items-center">
+            <input
+              type="checkbox"
+              class="form-checkbox text-customCyan"
+            />
+            <span class="ml-2 text-gray-700">Remember Me</span>
+          </label>
+          <a
+            href="{{ url_for('reset') }}"
+            class="text-customCyan hover:underline text-sm"
+          >
+            Forgot Password?
+          </a>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-2 bg-customCyan text-white font-semibold rounded hover:opacity-90 transition"
+        >
+          Sign In
+        </button>
+
+        <div class="flex items-center my-4">
+          <hr class="flex-grow border-gray-300" />
+          <span class="mx-2 text-gray-500 text-sm">Or continue with</span>
+          <hr class="flex-grow border-gray-300" />
+        </div>
+
+        <a
+          href="{{ url_for('google.login') }}"
+          class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 transition"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 48 48"
+            width="20"
+            height="20"
+            class="mr-2"
+          >
+            <path fill="#EA4335" d="M24 9.5c3.17 0 5.78 1.06 7.78 2.82L38.1 7.75C34.22 4.28 29.5 2.5 24 2.5 14.87 2.5 7.31 7.94 4.09 15.25l8.99 7.05C14.55 14.69 18.85 9.5 24 9.5z"/>
+            <path fill="#34A853" d="M24 43.5c5.1 0 9.79-1.73 13.44-4.69L28.92 32.5c-1.46.97-3.33 1.55-4.92 1.55-4.9 0-9.1-3.29-10.64-7.8l-8.99 7.05c3.33 6.56 10.21 11.2 19.63 11.2z"/>
+            <path fill="#4A90E2" d="M43.58 24.5c0-1.16-.1-2.28-.29-3.38H24v6.38h11.1c-.48 2.29-1.83 4.23-3.85 5.54l8.99 7.05c4.16-3.84 6.34-9.52 6.34-15.59z"/>
+            <path fill="#FBBC05" d="M13.36 25.96c-.36-1.06-.57-2.2-.57-3.46 0-1.2.2-2.38.54-3.46l-8.99-7.05C3.15 15.25 2.5 19.47 2.5 24c0 4.53.65 8.75 1.82 12.51l8.99-7.05z"/>
+          </svg>
+          Sign in with Google
+        </a>
+
+        <p class="text-center text-gray-600 text-sm mt-4">
+          Don’t have an account?
+          <a
+            href="{{ url_for('register') }}"
+            class="text-customCyan hover:underline"
+          >
+            Create an account
+          </a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

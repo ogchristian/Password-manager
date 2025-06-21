@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing{% endblock %}
+{% block content %}
+
+<!-- Background Effects -->
+<div class="relative bg-gray-50 py-20 overflow-hidden">
+  <div class="absolute top-0 left-1/4 w-72 h-72 bg-customCyan opacity-20 rounded-full filter blur-3xl"></div>
+  <div class="absolute bottom-10 right-1/3 w-56 h-56 bg-customCyan opacity-20 rounded-full filter blur-2xl"></div>
+  <div class="absolute top-1/2 right-10 w-64 h-64 bg-customCyan opacity-20 rounded-full filter blur-3xl"></div>
+
+  <!-- Pricing Content -->
+  <div class="relative container mx-auto px-4">
+    <h1 class="text-4xl font-bold text-center text-gray-800 mb-12">Our Plans</h1>
+
+    <div class="flex flex-col md:flex-row gap-8 justify-center">
+      <!-- Monthly Plan -->
+      <div class="bg-white rounded-xl shadow-lg p-8 flex-1 flex flex-col">
+        <h2 class="text-2xl font-semibold text-yellow-600 mb-4">Monthly</h2>
+        <div class="text-5xl font-bold text-yellow-600 mb-2">$0</div>
+        <div class="text-sm font-medium text-yellow-800 uppercase mb-4">save 0%</div>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <button class="mt-auto px-6 py-3 bg-gray-800 text-white font-medium rounded hover:opacity-90 transition">
+          Buy Now
+        </button>
+      </div>
+
+      <!-- Yearly Plan (Most Popular) -->
+      <div class="relative bg-white rounded-xl shadow-2xl p-8 flex-1 flex flex-col border-2 border-customCyan">
+        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-800 text-white text-xs font-semibold uppercase px-3 py-1 rounded-full">
+          Most Popular
+        </div>
+        <h2 class="text-2xl font-semibold text-yellow-600 mt-4 mb-4">Yearly</h2>
+        <div class="text-5xl font-bold text-yellow-600 mb-2">$0</div>
+        <div class="text-sm font-medium text-yellow-800 uppercase mb-4">save 0%</div>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <p class="text-yellow-600 mb-6 flex-1">Sample data</p>
+        <button class="mt-auto px-6 py-3 bg-gray-800 text-white font-medium rounded hover:opacity-90 transition">
+          Buy Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

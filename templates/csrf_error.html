@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSRF Error</title>
+</head>
+<body>
+    <h1>Form Submission Error</h1>
+    <p>{{ reason }}</p>
+    <p>Please go back and try again.</p>
+    <a href="{{ url_for('index') }}">Return to Home</a>
+</body>
+</html>

@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}Notes manager{% endblock %}
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <!-- Breadcrumb -->
+  <nav class="flex items-center text-gray-600 text-sm">
+    <a href="{{ url_for('index') }}" class="hover:text-gray-800">
+      <i class="fas fa-home mr-1"></i> Home
+    </a>
+    <span class="mx-2 text-gray-400">/</span>
+    <span class="text-gray-800 font-medium">
+      <i class="fas fa-list mr-1"></i> Notes
+    </span>
+  </nav>
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-4 sm:mb-0">Notes</h1>
+    <button
+      onclick="openCreateNoteModal()"
+      class="inline-flex items-center space-x-2 bg-customCyan text-white px-4 py-2 rounded hover:bg-customCyan/90 focus:outline-none"
+    >
+      <i class="fas fa-plus"></i>
+      <span>Add New</span>
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div>
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Search..."
+      class="w-full sm:w-1/2 px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"
+      oninput="filterTable()"
+    />
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-auto bg-white shadow rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Created at</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Created by</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="notesTbody" class="bg-white divide-y divide-gray-200">
+        <!-- JS will inject -->
+      </tbody>
+    </table>
+    <p id="noResults" class="p-4 text-gray-500 hidden">No notes found.</p>
+  </div>
+</div>
+
+<!-- CREATE MODAL -->
+<div id="createNoteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold">Create New Note</h2>
+      <button onclick="hideModal('createNoteModal')" class="text-gray-600 hover:text-gray-800">&times;</button>
+    </div>
+    <form id="notesForm" class="px-6 py-4 space-y-4" onsubmit="submitCreate(event)">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div>
+        <label class="block text-gray-700">Title</label>
+        <input id="title" name="title" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+      <div>
+        <label class="block text-gray-700">Note</label>
+        <input id="noteContent" name="noteContent" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="hideModal('createNoteModal')" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-customCyan text-white rounded hover:bg-customCyan/90">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editNoteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold">Edit Password</h2>
+      <button onclick="hideModal('editNoteModal')" class="text-gray-600 hover:text-gray-800">&times;</button>
+    </div>
+    <form id="editPasswordForm" class="px-6 py-4 space-y-4" onsubmit="submitEdit(event)">
+      <input type="hidden" id="editId" name="editId" />
+      <div>
+        <label class="block text-gray-700">Title</label>
+        <input id="editTitle" name="editTitle" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+      <div>
+        <label class="block text-gray-700">Content</label>
+        <input id="editnoteContent" name="editnoteContent" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div id="deleteNoteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-sm">
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold">Delete Note</h2>
+      <button onclick="hideModal('deleteNoteModal')" class="text-gray-600 hover:text-gray-800">&times;</button>
+    </div>
+    <div class="px-6 py-4 space-y-2">
+      <p>Are you sure you want to delete this note?</p>
+      <p><strong>ID:</strong> <span id="deleteNoteId"></span></p>
+    </div>
+    <div class="flex justify-end px-6 py-4 space-x-2 border-t">
+      <button onclick="hideModal('deleteNoteModal')" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+      <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+  <script>
+
+    const API_BASE_URL = '/api/notes';
+    let notes = [];
+
+    async function loadNotes() {
+      return;
+      try {
+        const res = await fetch(API_BASE_URL);
+        notes = await res.json();
+        renderTable(notes);
+      } catch(err) {
+        showToast("error", "Failed fetching Notes.");
+        console.error('Fetch error', err);
+      }
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('passwordTbody');
+      tbody.innerHTML = '';
+      if (!data.length) {
+        document.getElementById('noResults').classList.remove('hidden');
+      } else {
+        document.getElementById('noResults').classList.add('hidden');
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-50';
+          tr.innerHTML = ` 
+            <td class="px-4 py-2">${row.id}</td>
+            <td class="px-4 py-2">${row.title}</td>
+            <td class="px-4 py-2">${row.created_at}</td>
+            <td class="px-4 py-2">${row.created_by}</td>
+            <td class="px-4 py-2">
+              <div class="flex space-x-3">
+                <button class="text-gray-600 hover:text-blue-800" onclick="openViewModal(${row.id},'${row.title}','${row.created_at}','${row.created_by}','${row.content}')"
+                   title="View note">
+                <i class="fas fa-eye"></i>
+                </button>
+                <button class="text-gray-600 hover:text-green-800" onclick="openEditModal(${row.id})"
+                   title="Edit password">  
+                <i class="fas fa-edit"></i>
+                </button>
+                <button class="text-gray-600 hover:text-red-800" onclick="openDeleteModal(${row.id})"
+                title="Delete password">  
+                <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function filterTable() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      renderTable(passwords.filter(p =>
+        p.servicename.toLowerCase().includes(q) ||
+        p.username.toLowerCase().includes(q)
+      ));
+    }
+
+    function hideModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function openCreateNoteModal() {
+      document.getElementById('createNoteModal').classList.remove('hidden');
+    }
+
+    function openEditModal(id) {
+      const row = notes.find(p=>p.id===id);
+      if (!row)  
+        return;
+      document.getElementById('editId').value = row.id;
+      document.getElementById('editTitle').value = row.title;
+      document.getElementById('editCreated_at').value = row.created_at;
+      document.getElementById('editCreated_by').value = row.created_by;
+      document.getElementById('editNote').value = row.content;
+      document.getElementById('editNoteModal').classList.remove('hidden');
+    }
+
+    function openDeleteModal(id) {
+      document.getElementById('deleteNoteId').textContent = id;
+      document.getElementById('deleteNoteModal').classList.remove('hidden');
+    }
+
+    function openViewModal(id, title, created_at, created_by, content) {
+
+      document.getElementById('viewId').textContent = id;
+      document.getElementById('viewTitle').textContent = title;
+      document.getElementById('viewCreated_at').textContent = created_at;
+      document.getElementById('viewCreated_by').textContent = created_by;
+      document.getElementById('viewContent').textContent = content;
+    }
+
+    async function submitCreate(e) {
+      e.preventDefault();
+      const Request = e.target;
+      const payload = {
+        title: Request.title.value,
+        created_at: Request.created_at.value,
+        created_by: Request.created_by.value,
+        content: Request.content.value
+      };
+      await fetch(API_BASE_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      hideModal('createNoteModal');
+      loadNotes();
+      showToast("success", "Note successfully created!");
+    }
+
+    async function submitEdit(e) {
+      e.preventDefault();
+      const Request = e.target;
+      const id = Request.editId.value;
+      const payload = {
+        title: Request.title.value,
+        created_at: Request.created_at.value,
+        created_by: Request.created_by.value,
+        content: Request.content.value
+      };
+      await fetch(`${API_BASE_URL}/${id}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      hideModal('editNoteModal');
+      loadNotes();
+      showToast("success", "Note successfully updated!");
+    }
+
+    async function confirmDelete() {
+      const id = document.getElementById('deleteNoteId').textContent;
+      await fetch(`${API_BASE_URL}/${id}`, { method:'DELETE' });
+      hideModal('deleteNoteModal');
+      loadNotes();
+      showToast("success", "Note successfully deleted.");
+    }
+
+    function toggleNoteVisibility() {
+      const sp = document.getElementById('viewNote');
+      sp.textContent = sp.textContent==='••••••' ? sp.dataset.password:'••••••';
+    }
+
+    function copyField(fieldId) {
+      const val = document.getElementById(fieldId).value;
+      navigator.clipboard.writeText(val); 
+      showToast("success", "Note copied to clipboard!");
+    }
+
+    document.addEventListener('DOMContentLoaded', loadNotes);
+  </script>
+{% endblock %}

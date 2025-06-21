@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Login</title>
+
+  <!-- Tailwind Play CDN -->
+  <script src="/static/js/tailwinds_3.4.16.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            customCyan: "#0E9081",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Needed for backdrop-blur on all browsers */
+    @layer utilities {
+      .backdrop-blur {
+        backdrop-filter: blur(12px);
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 flex items-center justify-center p-6">
+  <!-- Decorative circle -->
+  <div class="absolute top-[-100px] right-[-100px] w-64 h-64 bg-customCyan opacity-20 rounded-full"></div>
+
+  <div class="relative z-10 max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-blur rounded-3xl shadow-2xl p-8 space-y-6">
+    <h1 class="text-3xl font-bold text-white text-center">Welcome Back</h1>
+
+    <form class="space-y-4">
+      <div>
+        <label for="email" class="block text-gray-300 mb-1 text-sm">Email</label>
+        <input
+          id="email"
+          type="email"
+          class="w-full px-4 py-2 bg-gray-700 text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-customCyan"
+          placeholder="you@example.com"
+        />
+      </div>
+      <div>
+        <label for="password" class="block text-gray-300 mb-1 text-sm">Password</label>
+        <input
+          id="password"
+          type="password"
+          class="w-full px-4 py-2 bg-gray-700 text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-customCyan"
+          placeholder="••••••••"
+        />
+      </div>
+      <button
+        type="submit"
+        class="w-full py-2 bg-gradient-to-r from-customCyan to-blue-400 text-gray-900 font-semibold rounded-lg shadow-md hover:from-blue-400 hover:to-customCyan transition"
+      >
+        Log In
+      </button>
+    </form>
+
+    <div class="flex items-center">
+      <hr class="flex-grow border-gray-600" />
+      <span class="px-3 text-gray-400 text-sm">or</span>
+      <hr class="flex-grow border-gray-600" />
+    </div>
+
+    <!-- Google login button -->
+     <a
+          href="{{ url_for('google.login') }}"
+          class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 transition"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 48 48"
+            width="20"
+            height="20"
+            class="mr-2"
+          >
+            <path fill="#EA4335" d="M24 9.5c3.17 0 5.78 1.06 7.78 2.82L38.1 7.75C34.22 4.28 29.5 2.5 24 2.5 14.87 2.5 7.31 7.94 4.09 15.25l8.99 7.05C14.55 14.69 18.85 9.5 24 9.5z"/>
+            <path fill="#34A853" d="M24 43.5c5.1 0 9.79-1.73 13.44-4.69L28.92 32.5c-1.46.97-3.33 1.55-4.92 1.55-4.9 0-9.1-3.29-10.64-7.8l-8.99 7.05c3.33 6.56 10.21 11.2 19.63 11.2z"/>
+            <path fill="#4A90E2" d="M43.58 24.5c0-1.16-.1-2.28-.29-3.38H24v6.38h11.1c-.48 2.29-1.83 4.23-3.85 5.54l8.99 7.05c4.16-3.84 6.34-9.52 6.34-15.59z"/>
+            <path fill="#FBBC05" d="M13.36 25.96c-.36-1.06-.57-2.2-.57-3.46 0-1.2.2-2.38.54-3.46l-8.99-7.05C3.15 15.25 2.5 19.47 2.5 24c0 4.53.65 8.75 1.82 12.51l8.99-7.05z"/>
+          </svg>
+          Sign in with Google
+        </a>
+   
+    <p class="text-center text-gray-400 text-sm">
+      Don’t have an account?
+      <a href="#" class="text-customCyan hover:underline">Register</a>
+    </p>
+  </div>
+</body>
+</html>

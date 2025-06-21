@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+{% block title %}Password manager{% endblock %}
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <!-- Breadcrumb -->
+  <nav class="flex items-center text-gray-600 text-sm">
+    <a href="{{ url_for('index') }}" class="hover:text-gray-800">
+      <i class="fas fa-home mr-1"></i> Home
+    </a>
+    <span class="mx-2 text-gray-400">/</span>
+    <span class="text-gray-800 font-medium">
+      <i class="fas fa-list mr-1"></i> Passwords
+    </span>
+  </nav>
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-4 sm:mb-0">Passwords</h1>
+    <button
+      onclick="openCreatePasswordModal()"
+      class="inline-flex items-center space-x-2 bg-customCyan text-white px-4 py-2 rounded hover:bg-customCyan/90 focus:outline-none"
+    >
+      <i class="fas fa-plus"></i>
+      <span>Add New</span>
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div>
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Search..."
+      class="w-full sm:w-1/2 px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"
+      oninput="filterTable()"
+    />
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-auto bg-white shadow rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="passwordTbody" class="bg-white divide-y divide-gray-200">
+        <!-- JS will inject -->
+      </tbody>
+    </table>
+    <p id="noResults" class="p-4 text-gray-500 hidden">No passwords found.</p>
+  </div>
+</div>
+
+<!-- CREATE MODAL -->
+<div id="createPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold">Create New Password</h2>
+      <button onclick="hideModal('createPasswordModal')" class="text-gray-600 hover:text-gray-800">&times;</button>
+    </div>
+    <form id="passwordForm" class="px-6 py-4 space-y-4" onsubmit="submitCreate(event)">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div>
+        <label class="block text-gray-700">Title</label>
+        <input id="serviceName" name="serviceName" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+      <div>
+        <label class="block text-gray-700">Web Address</label>
+        <input id="webAddress" name="webAddress" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+      <div>
+        <label class="block text-gray-700">Username/Email</label>
+        <input id="userName" name="userName" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+      <div>
+        <label class="block text-gray-700">Password</label>
+        <div class="flex space-x-2">
+          <input id="passwordInput" name="password" required  class="flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan" oninput="checkPasswordStrength(this, 'passwordStrength')">
+          <button type="button" onclick="generatePassword('passwordInput')" class="px-3 py-2 border rounded hover:bg-gray-100">
+            <i class="fa-classic fa-solid fa-arrows-rotate fa-fw"></i>
+          </button>
+          <button type="button" onclick="copyField('passwordInput')" class="px-3 py-2 border rounded hover:bg-gray-100">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="hideModal('createPasswordModal')" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-customCyan text-white rounded hover:bg-customCyan/90">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold">Edit Password</h2>
+      <button onclick="hideModal('editPasswordModal')" class="text-gray-600 hover:text-gray-800">&times;</button>
+    </div>
+    <form id="editPasswordForm" class="px-6 py-4 space-y-4" onsubmit="submitEdit(event)">
+      <input type="hidden" id="editId" name="editId" />
+      <div>
+        <label class="block text-gray-700">Title</label>
+        <input id="editServiceName" name="editServiceName" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+      <div>
+        <label class="block text-gray-700">Web Address</label>
+        <input id="editWebAddress" name="editWebAddress" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+      <div>
+        <label class="block text-gray-700">Usename/Email</label>
+        <input id="editUsername" name="editUsername" required
+               class="mt-1 w-full px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+      </div>
+      <div>
+        <label class="block text-gray-700">Password</label>
+      <div class="flex space-x-2">
+  <input id="editPassword" name="editPassword" required oninput="checkPasswordStrength(this, 'editPasswordStrength')"
+         class="flex-1 px-3 py-2 border rounded focus:ring-2 focus:ring-customCyan"/>
+  <button type="button" onclick="generatePassword('editPassword')" class="px-3 py-2 border rounded hover:bg-gray-100">
+    <i class="fa-classic fa-solid fa-arrows-rotate fa-fw"></i>
+  </button>
+  <button type="button" onclick="copyField('editPassword')" class="px-3 py-2 border rounded hover:bg-gray-100">
+    <i class="fas fa-copy"></i>
+  </button>
+</div>
+        <div id="editPasswordStrength" class="mt-1 text-sm"></div>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button type="button" onclick="hideModal('editPasswordModal')" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-customCyan text-white rounded hover:bg-customCyan/90">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div id="deletePasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-sm">
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold">Delete Password</h2>
+      <button onclick="hideModal('deletePasswordModal')" class="text-gray-600 hover:text-gray-800">&times;</button>
+    </div>
+    <div class="px-6 py-4 space-y-2">
+      <p>Are you sure you want to delete this password?</p>
+      <p><strong>ID:</strong> <span id="deletePasswordId"></span></p>
+    </div>
+    <div class="flex justify-end px-6 py-4 space-x-2 border-t">
+      <button onclick="hideModal('deletePasswordModal')" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+      <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div id="viewPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold">View Password</h2>
+      <button onclick="hideModal('viewPasswordModal')" class="text-gray-600 hover:text-gray-800">&times;</button>
+    </div>
+    <div class="px-6 py-4 space-y-2">
+      <p><strong>ID:</strong> <span id="viewId"></span></p>
+      <p><strong>Service:</strong> <span id="viewService"></span></p>
+      <p><strong>Web Address:</strong> <span id="viewWebAddress"></span></p>
+      <p><strong>Username:</strong> <span id="viewUsername"></span></p>
+      <div class="flex items-center space-x-2">
+        <strong>Password:</strong>
+        <span id="viewPassword" class="font-mono">••••••</span>
+        <button onclick="togglePasswordVisibility()" class="px-2 py-1 border rounded hover:bg-gray-100 text-sm">
+          <i class="fas fa-eye"></i>
+        </button>
+        <button onclick="copyPassword()" class="px-2 py-1 border rounded hover:bg-gray-100 text-sm">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+    </div>
+    <div class="flex justify-end px-6 py-4 border-t">
+      <button onclick="hideModal('viewPasswordModal')" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Close</button>
+    </div>
+  </div>
+</div>
+  <script>
+
+ function checkPasswordStrength(inputEl, strengthElId) {
+  const val = inputEl.value;
+  const strengthEl = document.getElementById(strengthElId);
+  let strength = 0;
+
+  if (val.length >= 8) strength++;
+  if (/[A-Z]/.test(val)) strength++;
+  if (/[a-z]/.test(val)) strength++;
+  if (/[0-9]/.test(val)) strength++;
+  if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+  let message = '', color = '';
+  if (strength <= 2) {
+    message = 'Weak'; 
+    color = 'text-red-600';
+  } else if (strength === 3 || strength === 4) {
+    message = 'Moderate'; 
+    color = 'text-yellow-DD600';
+  } else {
+    message = 'Strong'; 
+    color = 'text-green-600';
+  }
+
+  strengthEl.textContent = `Strength: ${message}`;
+  strengthEl.className = `mt-1 text-sm font-semibold ${color}`;
+}
+  function getDomain(url) {
+    try {
+      const u = new URL(url.includes('://') ? url : 'https://' + url);
+      return u.hostname;
+    } catch {
+      return url;
+    }
+  }
+
+    const API_BASE_URL = '/api/passwords';
+    let passwords = [];
+
+    async function loadPasswords() {
+      try {
+        const res = await fetch(API_BASE_URL);
+        passwords = await res.json();
+        renderTable(passwords);
+      } catch(err) {
+        showToast("error", "Failed fetching passwords.");
+        console.error('Fetch error', err);
+      }
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('passwordTbody');
+      tbody.innerHTML = '';
+      if (!data.length) {
+        document.getElementById('noResults').classList.remove('hidden');
+      } else {
+        document.getElementById('noResults').classList.add('hidden');
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-50';
+          tr.innerHTML = `          
+            <td class="px-4 py-2">
+  <div class="flex items-center space-x-2">
+    <div class="w-10 h-10 rounded bg-gray-100 overflow-hidden flex-shrink-0">
+      <img src="https://www.google.com/s2/favicons?domain=${getDomain(row.webaddress)}"
+           onerror="this.src='/static/default-icon.png'"
+           class="w-full h-full object-contain" />
+    </div>
+  </div>
+</td>
+            <td class="px-4 py-2">${row.servicename}</td>
+            <td class="px-4 py-2">${row.username}</td>
+            <td class="px-4 py-2">
+              <div class="flex space-x-3">
+                <button class="text-gray-600 hover:text-blue-800" onclick="openViewModal(${row.id},'${row.servicename}','${row.username}','${row.password}','${row.webaddress}')"
+                   title="View more">
+                <i class="fas fa-eye"></i>
+                </button>
+                <button class="text-gray-600 hover:text-green-800" onclick="openEditModal(${row.id})"
+                   title="Edit password">  
+                <i class="fas fa-edit"></i>
+                </button>
+                <button class="text-gray-600 hover:text-red-800" onclick="openDeleteModal(${row.id})"
+                title="Delete password">  
+                <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function filterTable() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      renderTable(passwords.filter(p =>
+        p.servicename.toLowerCase().includes(q) ||
+        p.username.toLowerCase().includes(q)
+      ));
+    }
+
+    function hideModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function openCreatePasswordModal() {
+      document.getElementById('createPasswordModal').classList.remove('hidden');
+    }
+
+    function openEditModal(id) {
+      const row = passwords.find(p=>p.id===id);
+      if (!row)  
+        return;
+      document.getElementById('editId').value = row.id;
+      document.getElementById('editServiceName').value = row.servicename;
+      document.getElementById('editWebAddress').value = row.webaddress;
+      document.getElementById('editUsername').value = row.username;
+      document.getElementById('editPassword').value = row.password;
+      document.getElementById('editPasswordModal').classList.remove('hidden');
+    }
+
+    function openDeleteModal(id) {
+      document.getElementById('deletePasswordId').textContent = id;
+      document.getElementById('deletePasswordModal').classList.remove('hidden');
+    }
+
+    function openViewModal(id, service, user, pass, web) {
+      document.getElementById('viewId').textContent = id;
+      document.getElementById('viewService').textContent = service;
+      document.getElementById('viewUsername').textContent = user;
+      document.getElementById('viewWebAddress').textContent = web;
+      const sp = document.getElementById('viewPassword');
+      sp.textContent = '••••••'; 
+      sp.dataset.password = pass;
+      document.getElementById('viewPasswordModal').classList.remove('hidden');
+    }
+
+    async function submitCreate(e) {
+      e.preventDefault();
+      const f = e.target;
+      const payload = {
+        servicename: f.serviceName.value,
+        webaddress: f.webAddress.value,
+        username: f.userName.value,
+        password: f.passwordInput.value
+      };
+      await fetch(API_BASE_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      hideModal('createPasswordModal');
+      loadPasswords();
+      showToast("success", "Password successfully created!");
+    }
+
+    async function submitEdit(e) {
+      e.preventDefault();
+      const f = e.target;
+      const id = f.editId.value;
+      const payload = {
+        servicename: f.editServiceName.value,
+        webaddress: f.editWebAddress.value,
+        username: f.editUsername.value,
+        password: f.editPassword.value
+      };
+      await fetch(`${API_BASE_URL}/${id}`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      hideModal('editPasswordModal');
+      loadPasswords();
+      showToast("success", "Password successfully updated!");
+    }
+
+    async function confirmDelete() {
+      const id = document.getElementById('deletePasswordId').textContent;
+      await fetch(`${API_BASE_URL}/${id}`, { method:'DELETE' });
+      hideModal('deletePasswordModal');
+      loadPasswords();
+      showToast("success", "Password successfully deleted.");
+    }
+
+    function togglePasswordVisibility() {
+      const sp = document.getElementById('viewPassword');
+      sp.textContent = sp.textContent==='••••••'?sp.dataset.password:'••••••';
+    }
+
+    function copyPassword() {
+      const pw = document.getElementById('viewPassword').dataset.password;
+      navigator.clipboard.writeText(pw);
+      showToast("success", "Password copied to clipboard!");
+    }
+
+    function copyField(fieldId) {
+      const val = document.getElementById(fieldId).value;
+      navigator.clipboard.writeText(val); 
+      showToast("success", "Password copied to clipboard!");
+    }
+
+    function generatePassword(fieldId) {
+      const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!';
+      let pwd='';
+      for(let i=0;i<12;i++) pwd+=chars.charAt(Math.floor(Math.random()*chars.length));
+      document.getElementById(fieldId).value = pwd;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPasswords);
+  </script>
+{% endblock %}

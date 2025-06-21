@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+
+<div class="flex flex-col lg:flex-row items-center justify-center min-h-screen">
+  <!-- Left Section -->
+  <div class="lg:w-1/2 p-8 text-center">
+    <h1 class="text-4xl font-bold mb-6">
+      Join and Unlock <span class="text-customCyan">Your Potential</span>
+    </h1>
+    <img
+      src="{{ url_for('static', filename='images/example.png') }}"
+      alt="Illustration"
+      class="mx-auto w-full max-w-md"
+    />
+  </div>
+
+  <!-- Right Section -->
+  <div class="lg:w-1/2 p-8">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg space-y-4">
+      <h2 class="text-2xl font-semibold">Create an Account</h2>
+      <p class="text-gray-600">Register to start using PasswordManager</p>
+
+      <!-- Sign up with Google -->
+      <a
+        href="{{ url_for('google.login') }}"
+        class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 48 48"
+          width="24"
+          height="24"
+          class="mr-2"
+        >
+          <path fill="#EA4335" d="M24 9.5c3.17 0…"/>
+          <path fill="#34A853" d="M24 43.5c5.1 0…"/>
+          <path fill="#4A90E2" d="M43.58 24.5c0…"/>
+          <path fill="#FBBC05" d="M13.36 25.96c-.36…"/>
+        </svg>
+        Sign up with Google
+      </a>
+
+      <p class="text-center text-gray-500">Or sign up with your email</p>
+
+      <form
+        id="register-form"
+        method="post"
+        action="{{ url_for('register') }}"
+        class="space-y-4"
+      >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+        <div>
+          <label for="email" class="block text-gray-700">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            placeholder="Email"
+            class="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-customCyan"
+          />
+          <p id="email-error" class="mt-1 text-sm text-red-600"></p>
+        </div>
+
+        <div>
+          <label for="password" class="block text-gray-700">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            minlength="6"
+            required
+            placeholder="Password"
+            class="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-customCyan"
+          />
+          <p id="password-error" class="mt-1 text-sm text-red-600"></p>
+        </div>
+
+        <div>
+          <label for="confirm_password" class="block text-gray-700">Confirm Password</label>
+          <input
+            id="confirm_password"
+            name="confirm_password"
+            type="password"
+            required
+            placeholder="Confirm Password"
+            class="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-customCyan"
+          />
+          <p id="confirm-password-error" class="mt-1 text-sm text-red-600"></p>
+        </div>
+
+        <div class="flex items-start">
+          <label class="inline-flex items-center">
+            <input
+              id="tos"
+              type="checkbox"
+              required
+              class="form-checkbox text-customCyan"
+            />
+            <span class="ml-2 text-gray-700">
+              I agree to the
+              <a href="{{ url_for('tos') }}" class="text-customCyan hover:underline">
+                Terms of Service
+              </a>
+            </span>
+          </label>
+        </div>
+        <p id="tos-error" class="mt-1 text-sm text-red-600"></p>
+
+        <button
+          type="submit"
+          class="w-full py-2 bg-customCyan text-white font-semibold rounded hover:opacity-90 transition"
+        >
+          Register
+        </button>
+      </form>
+
+      <p class="text-center text-gray-600 text-sm">
+        Already have an account?
+        <a href="{{ url_for('login') }}" class="text-customCyan hover:underline">
+          Sign in
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Form Validation
+  document.getElementById("register-form").addEventListener("submit", function (e) {
+    let valid = true;
+
+    const email = document.getElementById("email");
+    const pwd = document.getElementById("password");
+    const cpwd = document.getElementById("confirm_password");
+    const tos = document.getElementById("tos");
+
+    const emailErr = document.getElementById("email-error");
+    const pwdErr = document.getElementById("password-error");
+    const cpwdErr = document.getElementById("confirm-password-error");
+    const tosErr = document.getElementById("tos-error");
+
+    // Email
+    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!pattern.test(email.value)) {
+      valid = false;
+      emailErr.textContent = "Enter a valid email.";
+    } else {
+      emailErr.textContent = "";
+    }
+
+    // Password length
+    if (pwd.value.length < 6) {
+      valid = false;
+      pwdErr.textContent = "Password must be at least 6 characters.";
+    } else {
+      pwdErr.textContent = "";
+    }
+
+    // Match
+    if (pwd.value !== cpwd.value) {
+      valid = false;
+      cpwdErr.textContent = "Passwords do not match.";
+    } else {
+      cpwdErr.textContent = "";
+    }
+
+    // TOS
+    if (!tos.checked) {
+      valid = false;
+      tosErr.textContent = "You must agree to the Terms.";
+    } else {
+      tosErr.textContent = "";
+    }
+
+    if (!valid) e.preventDefault();
+  });
+</script>
+
+{% endblock %}

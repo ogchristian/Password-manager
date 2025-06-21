@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Password Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0E9081',
+            darkbg: '#1F2937',
+            lightbg: '#F3F4F6',
+            accent: '#FFC857'
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          },
+          animation: {
+            float: 'float 3s ease-in-out infinite'
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background-color: #0E9081; border-radius: 4px; }
+    ::-webkit-scrollbar-track { background: #F3F4F6; }
+  </style>
+</head>
+<body class="bg-lightbg font-sans">
+
+  <!-- Navigation -->
+  <header class="bg-darkbg text-white sticky top-0 z-50 shadow">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-lock text-2xl text-primary"></i>
+        <span class="text-2xl font-bold">Password Manager</span>
+      </div>
+      <nav class="hidden md:flex space-x-8">
+        <a href="#features" class="hover:text-primary transition">Features</a>
+        <a href="#passwords" class="hover:text-primary transition">Passwords</a>
+        <a href="#pricing" class="hover:text-primary transition">Pricing</a>
+        <a href="#support" class="hover:text-primary transition">Support</a>
+      </nav>
+      <div class="hidden md:block">
+        <button class="bg-primary px-4 py-2 rounded hover:bg-opacity-90 transition">Sign In</button>
+      </div>
+      <button class="md:hidden text-white" onclick="toggleMenu()">
+        <i class="fas fa-bars fa-lg"></i>
+      </button>
+    </div>
+    <div id="mobileMenu" class="hidden bg-darkbg md:hidden">
+      <a href="#features" class="block px-6 py-3 text-white hover:bg-gray-800">Features</a>
+      <a href="#passwords" class="block px-6 py-3 text-white hover:bg-gray-800">Passwords</a>
+      <a href="#pricing" class="block px-6 py-3 text-white hover:bg-gray-800">Pricing</a>
+      <a href="#support" class="block px-6 py-3 text-white hover:bg-gray-800">Support</a>
+    </div>
+  </header>
+  <script>function toggleMenu(){document.getElementById('mobileMenu').classList.toggle('hidden');}</script>
+
+  <!-- Hero + Datatable Mockup -->
+  <section class="relative bg-darkbg text-white">
+    <div class="absolute inset-0 bg-gradient-to-tr from-primary via-darkbg to-blue-900 opacity-30 pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-6 py-20 flex flex-col lg:flex-row items-center gap-8 relative z-10">
+      <div class="max-w-lg">
+        <h1 class="text-5xl font-bold mb-4 leading-tight">Password Manager</h1>
+        <p class="text-lg mb-6">Manage your passwords securely and efficiently.</p>
+        <a href="#pricing" class="inline-block bg-primary text-white px-8 py-3 rounded hover:bg-opacity-90 transition">Get Started</a>
+      </div>
+      <div class="relative">
+        <div class="w-32 h-32 bg-primary/10 rounded-full absolute animate-ping"></div>
+        <div class="relative animate-float">
+          <i class="fas fa-shield-alt text-primary text-7xl"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-28 bg-lightbg">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+      <div class="bg-white p-6 rounded-lg shadow hover:shadow-xl transition text-center">
+        <div class="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <i class="fas fa-shield-alt text-primary text-2xl animate-float"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Zero-Knowledge</h3>
+        <p class="text-gray-600">Only you can decrypt your data.</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow hover:shadow-xl transition text-center">
+        <div class="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <i class="fas fa-sync-alt text-primary text-2xl animate-spin"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Cross-Platform</h3>
+        <p class="text-gray-600">Sync across all your devices.</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow hover:shadow-xl transition text-center">
+        <div class="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <i class="fas fa-key text-primary text-2xl animate-float"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Password Generator</h3>
+        <p class="text-gray-600">Create strong, unique passwords.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="py-20 bg-lightbg">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <h2 class="text-4xl font-bold text-gray-800 mb-4">Choose Your Plan</h2>
+      <p class="text-gray-600 mb-12">Flexible plans for everyone.</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition flex flex-col">
+          <h3 class="text-xl font-semibold mb-2">Free</h3>
+          <p class="text-4xl font-bold text-primary mb-2">$0<span class="text-sm">/mo</span></p>
+          <ul class="text-gray-600 mb-6 space-y-2 flex-1 text-left">
+            <li>✔︎ 20 passwords</li>
+            <li>✔︎ 1 device sync</li>
+          </ul>
+          <button class="mt-auto bg-primary text-white py-2 rounded-lg hover:bg-opacity-90 transition">Select</button>
+        </div>
+        <div class="bg-gradient-to-br from-green-400 to-blue-500 p-8 rounded-lg shadow-lg relative overflow-hidden flex flex-col">
+          <span class="absolute top-4 right-4 bg-accent text-darkbg text-xs font-semibold uppercase px-3 py-1 rounded-full">Popular</span>
+          <h3 class="text-xl font-semibold mb-2 text-white">Pro</h3>
+          <p class="text-4xl font-bold mb-2 text-white">$6<span class="text-sm">/mo</span></p>
+          <ul class="mb-6 space-y-2 flex-1 text-left text-white">
+            <li>✔︎ Unlimited passwords</li>
+            <li>✔︎ Multi-device sync</li>
+            <li>✔︎ Secure sharing</li>
+          </ul>
+          <button class="mt-auto bg-white text-blue-600 py-2 rounded-lg hover:bg-gray-100 transition">Select</button>
+        </div>
+        <div class="bg-white p-8 rounded-lg shadow hover:shadow-lg transition flex flex-col">
+          <h3 class="text-xl font-semibold mb-2">Enterprise</h3>
+          <p class="text-4xl font-bold text-primary mb-2">$15<span class="text-sm">/mo</span></p>
+          <ul class="text-gray-600 mb-6 space-y-2 flex-1 text-left">
+            <li>✔︎ Team management</li>
+            <li>✔︎ SSO support</li>
+            <li>✔︎ Dedicated account</li>
+          </ul>
+          <button class="mt-auto bg-primary text-white py-2 rounded-lg hover:bg-opacity-90 transition">Contact</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Support Footer -->
+  <footer id="support" class="bg-darkbg text-white py-12 text-center">
+    <h4 class="text-lg font-semibold mb-2">Need help?</h4>
+    <p>Email us: <a href="mailto:support@vaultguard.com" class="text-accent hover:underline">support@vaultguard.com</a></p>
+    <p class="mt-4">&copy; 2025 VaultGuard. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

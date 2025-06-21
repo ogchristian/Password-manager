@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}{% endblock %}</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}"/>
+
+  <!-- Tailwind Play CDN -->
+  <script src="{{ url_for('static', filename='js/tailwinds_3.4.16.js') }}"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { 
+        colors: { 
+          customCyan: "#0E9081" 
+
+        } 
+      } 
+    }
+  };
+  </script>
+  <style>
+    @layer utilities {
+      .backdrop-blur { backdrop-filter: blur(12px); }
+    }
+  </style>
+    <!-- Font Awesome for action icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+
+<body class="flex flex-col min-h-screen bg-gray-100 overflow-x-hidden">
+  
+  {% set simple_pages = ['/login','/register','/reset','/', '/changepass'] %}
+  {% set is_app = request.path not in simple_pages %}
+
+  {% if is_app %}
+  <div class="flex flex-1 min-h-0">
+
+    <!-- SIDEBAR (off-canvas by default) -->
+    <aside id="sidebar"
+           class="fixed inset-y-0 left-0 w-64 bg-gray-800 text-white
+                  transform -translate-x-full transition-transform duration-300 z-30">
+      <div class="p-6 flex items-center jDDustify-between border-b border-gray-700">
+        <div class="flex items-center space-x-2">
+          <img src="{{ url_for('static', filename='images/test.png') }}"
+               alt="Logo" class="h-12 w-12"/>
+          <h2 class="text-xl font-semibold">{{ brand_name }}</h2>
+        </div>
+        <button id="sidebar-close"
+                class="text-2xl hover:bg-gray-700 rounded px-1"
+                aria-label="Close menu">&times;</button>
+      </div>
+      <nav class="p-4 space-y-1 overflow-auto">
+        <p class="text-gray-400 uppercase text-xs font-medium mb-2">Menu</p>
+        {% if has_subscription %}
+        <a href="{{ url_for('passmgr') }}"
+           class="flex items-center p-2 rounded hover:bg-gray-700 {% if '/passmgr' in request.path %}bg-gray-700{% endif %}">
+          <i class="fas fa-key mr-3"></i> Passwords
+        </a>
+         <a href="{{ url_for('notesmgr') }}"
+           class="flex items-center p-2 rounded hover:bg-gray-700 {% if '/notesmgr' in request.path %}bg-gray-700{% endif %}">
+          <i class="fas fa-note-sticky mr-3"></i> Notes
+        </a>
+        <a href="{{ url_for('export_csv') }}"
+           class="flex items-center p-2 rounded hover:bg-gray-700 {% if '/export_csv' in request.path %}bg-gray-700{% endif %}">
+          <i class="fa-solid fa-upload mr-3"></i> Export
+        </a>
+        {% endif %}
+        <a href="{{ url_for('pricing') }}"
+           class="flex items-center p-2 rounded hover:bg-gray-700 {% if '/pricing' in request.path %}bg-gray-700{% endif %}">
+          <i class="fas fa-basket-shopping mr-3"></i> Plans
+        </a>
+        {% if g.is_admin %}
+        <p class="mt-4 text-gray-400 uppercase text-xs font-medium mb-2">Admin</p>
+        <a href="{{ url_for('mgusers') }}"
+           class="flex items-center p-2 rounded hover:bg-gray-700 {% if '/mgusers' in request.path %}bg-gray-700{% endif %}">
+          <i class="fas fa-user mr-3"></i> Manage Users
+        </a>
+        <a href="{{ url_for('mglogs') }}"
+           class="flex items-center p-2 rounded hover:bg-gray-700 {% if '/mglogs' in request.path %}bg-gray-700{% endif %}">
+          <i class="fas fa-gear mr-3"></i> Manage Logs
+        </a>
+        <a href="{{ url_for('admin_tickets') }}"
+           class="flex items-center p-2 rounded hover:bg-gray-700 {% if '/admin/tickets' in request.path %}bg-gray-700{% endif %}">
+          <i class="fas fa-ticket-alt mr-3"></i> Manage Tickets
+        </a>
+        {% endif %}
+      </nav>
+    </aside>
+
+    <!-- CONTENT WRAPPER -->
+    <div id="content-wrapper" class="flex-1 flex flex-col transition-all duration-300">
+      <!-- TOP NAVBAR -->
+      <header class="flex items-center justify-between bg-white shadow px-6 py-3 flex-shrink-0">
+        <!-- HAMBURGER (navbar only) -->
+        <button id="sidebar-toggle"
+                class="p-2 bg-customCyan text-white rounded-lg shadow hover:bg-customCyan/90 focus:outline-none focus:ring-2 focus:ring-customCyan/50"
+                aria-label="Toggle menu">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               class="h-6 w-6"
+               fill="none"
+               viewBox="0 0 24 24"
+               stroke="currentColor"
+               stroke-width="2">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <!-- Profile dropdown -->
+        <div class="relative">
+          <button id="profile-btn"
+                  class="flex items-center space-x-2 focus:outline-none">
+            <img src="{{ url_for('static', filename='images/default_user.png') }}"
+                 alt="User" class="h-14 w-14 rounded-full"/>
+            <span class="text-gray-700">{{ email }}</span>
+            <i class="fas fa-chevron-down text-gray-500"></i>
+          </button>
+          <div id="profile-menu"
+               class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-20">
+            <a href="{{ url_for('view_tickets') }}"
+               class="flex items-center px-4 py-2 hover:bg-gray-100 text-gray-700">
+              <i class="fas fa-ticket-alt mr-2"></i> Support
+            </a>
+            <a href="{{ url_for('settings') }}"
+               class="flex items-center px-4 py-2 hover:bg-gray-100 text-gray-700">
+              <i class="fas fa-cog mr-2"></i> Settings
+            </a>
+            <hr class="my-1 border-gray-200"/>
+            <a href="{{ url_for('logout') }}"
+               class="flex items-center px-4 py-2 hover:bg-gray-100 text-gray-700">
+              <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </a>
+          </div>
+        </div>
+      </header>
+  {% endif %}
+
+  <!-- MAIN CONTENT -->
+  <main class="{{ 'flex-1 p-6 overflow-auto' if is_app else 'p-6' }}">
+    <!-- Toast ContaWiner -->
+    <div id="toast-container"
+        class="fixed top-6 right-6 space-y-4 z-50"></div>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  {% if is_app %}
+      <!-- FOOTER -->
+      <footer class="bg-white border-t border-gray-200 text-center py-4 flex-shrink-0">
+        <p class="text-sm text-gray-500">© 2025 {{ brand_name }}. All rights reserved.</p>
+      </footer>
+    </div> <!-- /#content-wrapper -->
+  </div>   <!-- /.flex -->
+  {% endif %}
+
+  <!-- COMMON SCRIPTS -->
+  <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+
+  <!-- Toast Logic -->
+  <script>
+  const container = document.getElementById("toast-container");
+
+  function showToast(category, message) {
+    const styleMap = {
+      success: { bg: "bg-green-50", ring: "ring-green-500", icon: "✔" },
+      warning: { bg: "bg-yellow-50", ring: "ring-yellow-500", icon: "⚠" },
+      error:   { bg: "bg-red-50",    ring: "ring-red-500",   icon: "✖" }
+    };
+    const { bg, ring, icon } = styleMap[category] || styleMap.success;
+
+    const toast = document.createElement("div");
+    toast.className = `max-w-xs w-full ${bg} ring-1 ${ring} ring-opacity-50 shadow-lg rounded-lg overflow-hidden`;
+    toast.innerHTML = `
+      <div class="p-4 flex items-start space-x-3">
+        <div class="text-xl">${icon}</div>
+        <div class="flex-1"><p class="text-sm font-medium text-gray-900">${message}</p></div>
+        <button class="text-gray-400 hover:text-gray-500">&times;</button>
+      </div>`;
+    toast.querySelector("button").onclick = () => toast.remove();
+
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  // Show any flashed messages from Flask
+  const flashed = {{ get_flashed_messages(with_categories=true)|tojson }};
+  flashed.forEach(([cat, txt]) => showToast(cat, txt));
+
+  </script>
+
+  <!-- Sidebar & Profile Toggle -->
+  {% if is_app %}
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content-wrapper');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const closeBtn  = document.getElementById('sidebar-close');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+      content.classList.toggle('ml-64');
+    });
+    closeBtn.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full');
+      content.classList.remove('ml-64');
+    });
+
+    document.getElementById('profile-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      document.getElementById('profile-menu').classList.toggle('hidden');
+    });
+    window.addEventListener('click', () => {
+      document.getElementById('profile-menu').classList.add('hidden');
+    });
+  </script>
+  
+  {% endif %}
+</body>
+</html>
