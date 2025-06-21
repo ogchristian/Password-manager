@@ -147,6 +147,7 @@ class Notes(db.Model, UserMixin):
             "created_by": decrypt_value(self.created_by),
             "title": decrypt_value(self.title),
             "content": decrypt_value(self.content)
+            
         }
 
 class User(db.Model, UserMixin):
