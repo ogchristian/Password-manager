@@ -1,2 +1,2 @@
-# Password-manager
-Python web based password manager
+# Password manager
+ Python  web based password manager
